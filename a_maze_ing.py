@@ -1,7 +1,8 @@
 from sys import argv
 from typing import Any
 from config_parse import config_parse
-from mazeGenerator import MazeGenerator
+from mazegen import MazeGenerator
+from renderer import renderer
 
 
 def main() -> None:
@@ -14,7 +15,10 @@ def main() -> None:
                                                                     "#"),
                                                                 file.read().
                                                                 split("\n"))))
+            print(settings)
             mazeGenerator = MazeGenerator(settings)
+            maze = mazeGenerator.generate_maze()
+            renderer(maze)
     else:
         print("Usage: python3 a_maze_ing.py config.txt")
 

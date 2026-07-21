@@ -23,7 +23,11 @@ def config_parse(config: list[str]) -> dict[str, Any]:
                                            split(",", maxsplit=2)))
         configuration["EXIT"] = tuple(map(lambda x: int(x), settings["EXIT"].
                                           split(",", maxsplit=2)))
-        configuration["SEED"] = eval(settings["SEED"].capitalize())
+        if settings["SEED"] == "None":
+            configuration["SEED"] = eval(settings["SEED"].capitalize())
+        else:
+            configuration["SEED"] = int(settings["SEED"])
+        configuration["OUTPUT_FILE"] = settings["OUTPUT_FILE"]
         configuration["PERFECT"] = eval(settings["PERFECT"].capitalize())
         if configuration["WIDTH"] < 2 or configuration["HEIGHT"] < 2:
             raise ValueError("The maze has a minimum configuration of 2x2")
