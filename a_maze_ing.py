@@ -15,7 +15,6 @@ def main() -> None:
                                                                     "#"),
                                                                 file.read().
                                                                 split("\n"))))
-            print(settings)
             mazeGenerator = MazeGenerator(settings)
             maze = mazeGenerator.generate_maze()
             renderer(maze)
