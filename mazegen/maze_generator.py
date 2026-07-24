@@ -24,9 +24,9 @@ class MazeGenerator:
             if self.seed:
                 seed(self.seed)
             maze = Maze(self.width, self.height, self.entry, self.exit)
-            for y in range(0, maze.height):
+            for y in range(maze.height):
                 row: list[Cell] = []
-                for x in range(0, maze.width):
+                for x in range(maze.width):
                     if y == 0:
                         if x == maze.width - 1:
                             row.append(Cell(1, 1, 0, 0, (x, y)))
