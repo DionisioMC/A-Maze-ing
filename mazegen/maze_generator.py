@@ -1,14 +1,7 @@
 from typing import Any
-from random import seed, Random, randint
+from random import Random, randint
 from .cell import Cell
-from .maze import Maze
 
-
-NORTH = 1
-EAST = 2
-SOUTH = 4
-WEST = 8
-ALL = 15
 
 class MazeException(Exception):
     def __init__(self, *args):
@@ -28,12 +21,11 @@ class MazeGenerator:
         self.output_file = settings["OUTPUT_FILE"]
         self.perfect = settings["PERFECT"]
         self.grid = self.set_grid()
-        self.rndm = Random(seed)
-
+        self.rndm = Random(self.seed)
 
     def generate_maze(self) -> None:
         try:
-            mask_42: list[tuple[int, int]]= []
+            mask_42: list[tuple[int, int]] = []
             if self.width <= 10 or self.height <= 10:
                 print("Maze not big enough for 42 mask")
             else:
@@ -44,15 +36,18 @@ class MazeGenerator:
             maze_stack: list[tuple[int, int]] = []
             visited.append(self.entry)
             maze_stack.append(self.entry)
-            print(visited)
             while maze_stack:
                 cy, cx = maze_stack[-1]
-                moves = [(1, 0, 'south'), (-1, 0, 'north'), (0, 1, 'east'), (0, -1, 'west')]
-                neighbours: list[tuple[int,int]] = []
+                moves = [(1, 0, 'south'), (-1, 0, 'north'), (0, 1, 'east'),
+                         (0, -1, 'west')]
+                neighbours: list[tuple[int, int, str]] = []
                 for my, mx, direction in moves:
                     ny, nx = (cy + my, cx + mx)
-                    if ((ny, nx) not in visited 
-                        and 0 <= ny < self.height and 0 <= nx < self.width):
+                    if (
+                        (ny, nx) not in visited
+                        and 0 <= ny < self.height
+                        and 0 <= nx < self.width
+                       ):
                         neighbours.append((ny, nx, direction))
                 if neighbours:
                     ny, nx, direction = self.rndm.choice(neighbours)
@@ -63,23 +58,23 @@ class MazeGenerator:
                     maze_stack.pop()
         except Exception as e:
             print(f"Maze generation error: {e}")
-    
+
     def set_grid(self) -> list[list[Cell]]:
-        grid = [[Cell(1, 1, 1, 1, (x, y)) for x in range(self.width)] 
+        grid = [[Cell(1, 1, 1, 1, (y, x)) for x in range(self.width)]
                 for y in range(self.height)]
         return grid
 
-    def get_42(self) -> list[tuple[int,int]]:
+    def get_42(self) -> list[tuple[int, int]]:
         center = (self.height // 2, self.width // 2)
         mask_coords = [
-            (-2, -3), (-1, -3), (0, -3), (0, -2), (0 , -1), (1, -1), (2, -1),
+            (-2, -3), (-1, -3), (0, -3), (0, -2), (0, -1), (1, -1), (2, -1),
             (-2, 1), (-2, 2), (-2, 3), (-1, 3), (0, 3), (0, 2), (0, 1),
             (1, 1), (2, 1), (2, 2), (2, 3)
             ]
         mask_42 = [(center[0] + coord[0], center[1] + coord[1])
                    for coord in mask_coords]
         return mask_42
-    
+
     def break_walls(self, curr: tuple[int, int], next: tuple[int, int],
                     direction: str):
         cy, cx = curr
@@ -96,4 +91,3 @@ class MazeGenerator:
         else:
             self.grid[cy][cx].west = 0
             self.grid[ny][nx].east = 0
-        
