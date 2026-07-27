@@ -16,8 +16,8 @@ def main() -> None:
                                                                 file.read().
                                                                 split("\n"))))
             mazeGenerator = MazeGenerator(settings)
-            maze = mazeGenerator.generate_maze()
-            renderer(maze)
+            mazeGenerator.generate_maze()
+            renderer(mazeGenerator)
     else:
         print("Usage: python3 a_maze_ing.py config.txt")
 
