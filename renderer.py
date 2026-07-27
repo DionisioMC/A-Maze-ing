@@ -1,8 +1,8 @@
-from mazegen import Maze
+from mazegen import MazeGenerator
 from mlx import Mlx
 
 
-def renderer(maze: Maze):
+def renderer(maze: MazeGenerator):
     mlx = Mlx()
     mlx_ptr = mlx.mlx_init()
     CELL_SIZE = 20
