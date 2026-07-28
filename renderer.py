@@ -3,7 +3,7 @@ from mlx import Mlx
 from maze_solver import maze_solver
 
 
-def renderer(maze: MazeGenerator):
+def renderer(maze: MazeGenerator, path: str):
     mlx = Mlx()
     mlx_ptr = mlx.mlx_init()
     has_path: bool = True

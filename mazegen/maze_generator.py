@@ -21,7 +21,7 @@ class MazeGenerator:
         self.output_file = settings["OUTPUT_FILE"]
         self.perfect = settings["PERFECT"]
         self.grid = self.set_grid()
-        self.rndm = Random(seed)
+        self.rndm = Random(self.seed)
         if self.width <= 10 or self.height <= 10:
             self.mask_42: list[tuple[int, int]]= []
             print("Maze not big enough for 42 mask")
