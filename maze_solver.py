@@ -1,7 +1,7 @@
-from mazegen import Maze
+from mazegen import MazeGenerator
 
 
-def maze_solver(maze: Maze) -> str:
+def maze_solver(maze: MazeGenerator) -> str:
     entry = maze.entry
     exit = maze.exit
     queue: list[tuple[int, int]] = []
@@ -13,15 +13,15 @@ def maze_solver(maze: Maze) -> str:
         current_pos = queue.pop(0)
         if current_pos == exit:
             break
-        current_cell = maze.grid[current_pos[1]][current_pos[0]]
-        for (direction, dx, dy) in [("north", 0, -1), ("east", 1, 0),
-                                    ("south", 0, 1), ("west", -1, 0)]:
+        current_cell = maze.grid[current_pos[0]][current_pos[1]]
+        for (direction, dy, dx) in [("north", -1, 0), ("east", 0, 1),
+                                    ("south", 1, 0), ("west", 0, -1)]:
             if not getattr(current_cell, direction):
-                neigh_pos = (current_pos[0] + dx, current_pos[1] + dy)
+                neigh_pos = (current_pos[0] + dy, current_pos[1] + dx)
                 is_next = (((neigh_pos[0] >= 0 and
-                             neigh_pos[0] < maze.width) and
+                             neigh_pos[0] < maze.height) and
                             (neigh_pos[1] >= 0 and
-                             neigh_pos[1] < maze.height)))
+                             neigh_pos[1] < maze.width)))
                 if is_next and neigh_pos not in visited:
                     visited.add(neigh_pos)
                     came_from[(neigh_pos)] = (current_pos, direction)
