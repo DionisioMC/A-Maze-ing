@@ -15,7 +15,8 @@ def renderer(maze: MazeGenerator):
     EXIT_COLOR = int("0xFFFF2400", 16)
     PATH_COLOR = int("0xFF2400FF", 16)
     BG_COLOR = int("0xFF000000", 16)
-    ALT_COLORS = [int("0xFFFFFFFF", 16), int("0xFFFF6E00", 16)]
+    ALT_COLORS = [int("0xFFFFF200", 16), int("0xFFFFFFFF", 16),
+                  int("0xFFFF6E00", 16)]
     WIDTH = maze.width * CELL_SIZE
     HEIGHT = maze.height * CELL_SIZE
     PADDING = 40
