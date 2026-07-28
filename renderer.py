@@ -11,6 +11,7 @@ def renderer(maze: MazeGenerator, path: str):
     CELL_SIZE = 20
     WALL_THICKNESS = 3
     WALL_COLOR = int("0xFFFFF200", 16)
+    FT_COLOR = int("0xFFFFF200", 16)
     ENTRY_COLOR = int("0xFF3BB143", 16)
     EXIT_COLOR = int("0xFFFF2400", 16)
     PATH_COLOR = int("0xFF2400FF", 16)
@@ -72,22 +73,28 @@ def renderer(maze: MazeGenerator, path: str):
                             put_pixel(px + dx, py + dy, ENTRY_COLOR)
                         elif cell.pos == maze.exit:
                             put_pixel(px + dx, py + dy, EXIT_COLOR)
-                if cell.north:
+                if cell.get_hex() == "0xf":
                     for dx in range(CELL_SIZE):
-                        for dy in range(WALL_THICKNESS):
-                            put_pixel(px + dx, py + dy, WALL_COLOR)
-                if cell.south:
-                    for dx in range(CELL_SIZE):
-                        for dy in range(CELL_SIZE - WALL_THICKNESS, CELL_SIZE):
-                            put_pixel(px + dx, py + dy, WALL_COLOR)
-                if cell.west:
-                    for dx in range(WALL_THICKNESS):
                         for dy in range(CELL_SIZE):
-                            put_pixel(px + dx, py + dy, WALL_COLOR)
-                if cell.east:
-                    for dx in range(CELL_SIZE - WALL_THICKNESS, CELL_SIZE):
-                        for dy in range(CELL_SIZE):
-                            put_pixel(px + dx, py + dy, WALL_COLOR)
+                            put_pixel(px + dx, py + dy, FT_COLOR)
+                else:
+                    if cell.north:
+                        for dx in range(CELL_SIZE):
+                            for dy in range(WALL_THICKNESS):
+                                put_pixel(px + dx, py + dy, WALL_COLOR)
+                    if cell.south:
+                        for dx in range(CELL_SIZE):
+                            for dy in range(CELL_SIZE - WALL_THICKNESS,
+                                            CELL_SIZE):
+                                put_pixel(px + dx, py + dy, WALL_COLOR)
+                    if cell.west:
+                        for dx in range(WALL_THICKNESS):
+                            for dy in range(CELL_SIZE):
+                                put_pixel(px + dx, py + dy, WALL_COLOR)
+                    if cell.east:
+                        for dx in range(CELL_SIZE - WALL_THICKNESS, CELL_SIZE):
+                            for dy in range(CELL_SIZE):
+                                put_pixel(px + dx, py + dy, WALL_COLOR)
         mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, img_ptr, 0, 0)
 
     def key_press(keycode: int, param) -> None:
