@@ -21,17 +21,22 @@ class MazeGenerator:
         self.output_file = settings["OUTPUT_FILE"]
         self.perfect = settings["PERFECT"]
         self.grid = self.set_grid()
-        self.rndm = Random(self.seed)
+        self.rndm = Random(seed)
+        if self.width <= 10 or self.height <= 10:
+            self.mask_42: list[tuple[int, int]]= []
+            print("Maze not big enough for 42 mask")
+        else:
+            self.mask_42 = self.get_42()
+
 
     def generate_maze(self) -> None:
         try:
-            mask_42: list[tuple[int, int]] = []
-            if self.width <= 10 or self.height <= 10:
-                print("Maze not big enough for 42 mask")
-            else:
-                mask_42 = self.get_42()
+            if self.entry in self.mask_42:
+                raise MazeException("Entry is in the 42 mask!")
+            if self.exit in self.mask_42:
+                raise MazeException("Exit is in the 42 mask!")
             visited: list[tuple[int, int]] = []
-            for coord in mask_42:
+            for coord in self.mask_42:
                 visited.append(coord)
             maze_stack: list[tuple[int, int]] = []
             visited.append(self.entry)
@@ -56,8 +61,21 @@ class MazeGenerator:
                     maze_stack.append((ny, nx))
                 else:
                     maze_stack.pop()
+            if self.perfect == False:
+                self.generate_imperfect()
         except Exception as e:
             print(f"Maze generation error: {e}")
+    
+    def generate_imperfect(self) -> None:
+        rem_quant = self.height * self.width // 10
+        while rem_quant:
+            cy = self.rndm.randint(0, self.height - 1)
+            cx = self.rndm.randint(0, self.width - 2)
+            if ((cy, cx) not in self.mask_42 and
+                (cy, cx + 1) not in self.mask_42 and
+                self.grid[cy][cx].east == 1):
+                self.break_walls((cy, cx), (cy, cx + 1), 'east')
+                rem_quant -= 1
 
     def set_grid(self) -> list[list[Cell]]:
         grid = [[Cell(1, 1, 1, 1, (y, x)) for x in range(self.width)]
@@ -79,13 +97,13 @@ class MazeGenerator:
                     direction: str):
         cy, cx = curr
         ny, nx = next
-        if direction == "north":
+        if direction == 'north':
             self.grid[cy][cx].north = 0
             self.grid[ny][nx].south = 0
-        elif direction == "south":
+        elif direction == 'south':
             self.grid[cy][cx].south = 0
             self.grid[ny][nx].north = 0
-        elif direction == "east":
+        elif direction == 'east':
             self.grid[cy][cx].east = 0
             self.grid[ny][nx].west = 0
         else:
