@@ -11,5 +11,5 @@ class Cell:
     def get_hex(self) -> str:
         walls = [str(self.north), str(self.east), str(self.south),
                  str(self.west)]
-        num = hex(int("".join(walls), 2))
+        num = hex(int("".join(walls), 2))[2].capitalize()
         return num
