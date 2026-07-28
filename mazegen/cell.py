@@ -5,8 +5,8 @@ class Cell:
         self.east = east
         self.south = south
         self.west = west
-        self.is_visited = False
         self.pos = pos
+        self.is_visited = False
 
     def get_hex(self) -> str:
         walls = [str(self.north), str(self.east), str(self.south),

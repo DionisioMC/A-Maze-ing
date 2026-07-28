@@ -1,15 +1,22 @@
 from mazegen import MazeGenerator
 from mlx import Mlx
+from maze_solver import maze_solver
 
 
 def renderer(maze: MazeGenerator):
     mlx = Mlx()
     mlx_ptr = mlx.mlx_init()
+    has_path: bool = True
+    i: int = -1
     CELL_SIZE = 20
     WALL_THICKNESS = 3
     WALL_COLOR = int("0xFFFFF200", 16)
-    ENTRY_COLOR = int("0xFF2400FF", 16)
+    ENTRY_COLOR = int("0xFF3BB143", 16)
     EXIT_COLOR = int("0xFFFF2400", 16)
+    PATH_COLOR = int("0xFF2400FF", 16)
+    BG_COLOR = int("0xFF000000", 16)
+    ALT_COLORS = [int("0xFFFFF200", 16), int("0xFFFFFFFF", 16),
+                  int("0xFFFF6E00", 16)]
     WIDTH = maze.width * CELL_SIZE
     HEIGHT = maze.height * CELL_SIZE
     PADDING = 40
@@ -29,31 +36,54 @@ def renderer(maze: MazeGenerator):
     def render(param) -> None:
         for row in maze.grid:
             for cell in row:
-                px, py = (cell.pos[0] * CELL_SIZE + PADDING,
+                py, px = (cell.pos[0] * CELL_SIZE + PADDING,
                           cell.pos[1] * CELL_SIZE + PADDING)
-
+                for dx in range(CELL_SIZE):
+                    for dy in range(CELL_SIZE):
+                        put_pixel(px + dx, py + dy, BG_COLOR)
+        if has_path:
+            path = maze_solver(maze)
+            path_cell = maze.grid[maze.entry[0]][maze.entry[1]]
+            for direction in path:
+                next_y: int = path_cell.pos[0]
+                next_x: int = path_cell.pos[1]
+                if direction == "N":
+                    next_y = next_y - 1
+                elif direction == "E":
+                    next_x = next_x + 1
+                elif direction == "S":
+                    next_y = next_y + 1
+                elif direction == "W":
+                    next_x = next_x - 1
+                path_cell = maze.grid[next_y][next_x]
+                if path_cell.pos != maze.exit:
+                    py, px = (path_cell.pos[0] * CELL_SIZE + PADDING,
+                              path_cell.pos[1] * CELL_SIZE + PADDING)
+                    for dx in range(CELL_SIZE):
+                        for dy in range(CELL_SIZE):
+                            put_pixel(px + dx, py + dy, PATH_COLOR)
+        for row in maze.grid:
+            for cell in row:
+                py, px = (cell.pos[0] * CELL_SIZE + PADDING,
+                          cell.pos[1] * CELL_SIZE + PADDING)
                 for dx in range(CELL_SIZE):
                     for dy in range(CELL_SIZE):
                         if cell.pos == maze.entry:
                             put_pixel(px + dx, py + dy, ENTRY_COLOR)
                         elif cell.pos == maze.exit:
                             put_pixel(px + dx, py + dy, EXIT_COLOR)
-
                 if cell.north:
                     for dx in range(CELL_SIZE):
                         for dy in range(WALL_THICKNESS):
                             put_pixel(px + dx, py + dy, WALL_COLOR)
-
                 if cell.south:
                     for dx in range(CELL_SIZE):
                         for dy in range(CELL_SIZE - WALL_THICKNESS, CELL_SIZE):
                             put_pixel(px + dx, py + dy, WALL_COLOR)
-
                 if cell.west:
                     for dx in range(WALL_THICKNESS):
                         for dy in range(CELL_SIZE):
                             put_pixel(px + dx, py + dy, WALL_COLOR)
-
                 if cell.east:
                     for dx in range(CELL_SIZE - WALL_THICKNESS, CELL_SIZE):
                         for dy in range(CELL_SIZE):
@@ -61,8 +91,23 @@ def renderer(maze: MazeGenerator):
         mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, img_ptr, 0, 0)
 
     def key_press(keycode: int, param) -> None:
-        if keycode == 65307:
+        if keycode == 49:
             mlx.mlx_loop_exit(mlx_ptr)
+        elif keycode == 50:
+            maze.grid = maze.set_grid()
+            maze.generate_maze()
+        elif keycode == 51:
+            nonlocal has_path
+            has_path = not has_path
+        elif keycode == 52:
+            nonlocal i
+            nonlocal WALL_COLOR
+            i += 1
+            if i == len(ALT_COLORS):
+                i = 0
+            WALL_COLOR = ALT_COLORS[i]
+        elif keycode == 53:
+            pass
 
     mlx.mlx_loop_hook(mlx_ptr, render, None)
     mlx.mlx_key_hook(win_ptr, key_press, None)
