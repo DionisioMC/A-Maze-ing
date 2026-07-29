@@ -1,23 +1,118 @@
 from mazegen import MazeGenerator
 from mlx import Mlx
 from maze_solver import maze_solver
+from random import randint, Random
 
 
 def renderer(maze: MazeGenerator, path: str):
     mlx = Mlx()
     mlx_ptr = mlx.mlx_init()
     has_path: bool = True
-    i: int = -1
+    i: int = 0
     CELL_SIZE = 20
     WALL_THICKNESS = 3
-    WALL_COLOR = int("0xFFFFF200", 16)
-    FT_COLOR = int("0xFFFFF200", 16)
-    ENTRY_COLOR = int("0xFF3BB143", 16)
-    EXIT_COLOR = int("0xFFFF2400", 16)
-    PATH_COLOR = int("0xFF2400FF", 16)
-    BG_COLOR = int("0xFF000000", 16)
-    ALT_COLORS = [int("0xFFFFF200", 16), int("0xFFFFFFFF", 16),
-                  int("0xFFFF6E00", 16)]
+    COLORS = [
+        {
+            "name": "Classic",
+            "walls": int("0xFF202020", 16),
+            "bg": int("0xFFF5F5F5", 16),
+            "solution": int("0xFFFFD000", 16),
+            "entry": int("0xFF00C853", 16),
+            "exit": int("0xFFD50000", 16),
+            "closed": int("0xFF90A4AE", 16),
+        },
+        {
+            "name": "Neon",
+            "walls": int("0xFF0D0D0D", 16),
+            "bg": int("0xFF121212", 16),
+            "solution": int("0xFFFFFF00", 16),
+            "entry": int("0xFF00FF9C", 16),
+            "exit": int("0xFFFF1744", 16),
+            "closed": int("0xFF303030", 16),
+        },
+        {
+            "name": "Ocean",
+            "walls": int("0xFF003049", 16),
+            "bg": int("0xFFEAF7FF", 16),
+            "solution": int("0xFFFFC300", 16),
+            "entry": int("0xFF00B4D8", 16),
+            "exit": int("0xFFE63946", 16),
+            "closed": int("0xFF90E0EF", 16),
+        },
+        {
+            "name": "Forest",
+            "walls": int("0xFF2D6A4F", 16),
+            "bg": int("0xFFF1FAEE", 16),
+            "solution": int("0xFFFFC300", 16),
+            "entry": int("0xFF52B788", 16),
+            "exit": int("0xFFD62828", 16),
+            "closed": int("0xFF95D5B2", 16),
+        },
+        {
+            "name": "Desert",
+            "walls": int("0xFF6D4C41", 16),
+            "bg": int("0xFFFFF8E1", 16),
+            "solution": int("0xFFFFB703", 16),
+            "entry": int("0xFF2A9D8F", 16),
+            "exit": int("0xFFE63946", 16),
+            "closed": int("0xFFDDB892", 16),
+        },
+        {
+            "name": "Ice",
+            "walls": int("0xFF274C77", 16),
+            "bg": int("0xFFF8FCFF", 16),
+            "solution": int("0xFFFFD60A", 16),
+            "entry": int("0xFF48CAE4", 16),
+            "exit": int("0xFFFF595E", 16),
+            "closed": int("0xFFA9D6E5", 16),
+        },
+        {
+            "name": "Lava",
+            "walls": int("0xFF1B1B1B", 16),
+            "bg": int("0xFF2B2D42", 16),
+            "solution": int("0xFFFFC300", 16),
+            "entry": int("0xFFFF6D00", 16),
+            "exit": int("0xFFD00000", 16),
+            "closed": int("0xFF5C677D", 16),
+        },
+        {
+            "name": "Pastel",
+            "walls": int("0xFF7B8FA1", 16),
+            "bg": int("0xFFFFFBF2", 16),
+            "solution": int("0xFFFFD166", 16),
+            "entry": int("0xFF80ED99", 16),
+            "exit": int("0xFFFF6B6B", 16),
+            "closed": int("0xFFD6CCC2", 16),
+        },
+        {
+            "name": "Cyberpunk",
+            "walls": int("0xFF240046", 16),
+            "bg": int("0xFF10002B", 16),
+            "solution": int("0xFFFFEA00", 16),
+            "entry": int("0xFF00F5D4", 16),
+            "exit": int("0xFFFF006E", 16),
+            "closed": int("0xFF5A189A", 16),
+        },
+        {
+            "name": "Monochrome",
+            "walls": int("0xFF000000", 16),
+            "bg": int("0xFFFFFFFF", 16),
+            "solution": int("0xFF808080", 16),
+            "entry": int("0xFF00AA00", 16),
+            "exit": int("0xFFAA0000", 16),
+            "closed": int("0xFFBDBDBD", 16),
+        },
+        {
+            "name": "42",
+            "walls": int("0xFF000000", 16),
+            "bg": int("0xFFF8F8F8", 16),
+            "solution": int("0xFFFFFF00", 16),
+            "entry": int("0xFF00BABC", 16),
+            "exit": int("0xFFFF4D4D", 16),
+            "closed": int("0xFF6C757D", 16),
+        }
+    ]
+    CURR_COLORS = COLORS[i]
     WIDTH = maze.width * CELL_SIZE
     HEIGHT = maze.height * CELL_SIZE
     PADDING = 40
@@ -33,7 +128,7 @@ def renderer(maze: MazeGenerator, path: str):
         pixel_end = offset + bytes_per_pixel
         data[offset:pixel_end] = color.to_bytes(bytes_per_pixel,
                                                 byteorder="little")
-
+    
     def render(param) -> None:
         for row in maze.grid:
             for cell in row:
@@ -41,7 +136,7 @@ def renderer(maze: MazeGenerator, path: str):
                           cell.pos[1] * CELL_SIZE + PADDING)
                 for dx in range(CELL_SIZE):
                     for dy in range(CELL_SIZE):
-                        put_pixel(px + dx, py + dy, BG_COLOR)
+                        put_pixel(px + dx, py + dy, CURR_COLORS["bg"])
         if has_path:
             path = maze_solver(maze)
             path_cell = maze.grid[maze.entry[0]][maze.entry[1]]
@@ -62,7 +157,7 @@ def renderer(maze: MazeGenerator, path: str):
                               path_cell.pos[1] * CELL_SIZE + PADDING)
                     for dx in range(CELL_SIZE):
                         for dy in range(CELL_SIZE):
-                            put_pixel(px + dx, py + dy, PATH_COLOR)
+                            put_pixel(px + dx, py + dy, CURR_COLORS["solution"])
         for row in maze.grid:
             for cell in row:
                 py, px = (cell.pos[0] * CELL_SIZE + PADDING,
@@ -70,49 +165,53 @@ def renderer(maze: MazeGenerator, path: str):
                 for dx in range(CELL_SIZE):
                     for dy in range(CELL_SIZE):
                         if cell.pos == maze.entry:
-                            put_pixel(px + dx, py + dy, ENTRY_COLOR)
+                            put_pixel(px + dx, py + dy, CURR_COLORS["entry"])
                         elif cell.pos == maze.exit:
-                            put_pixel(px + dx, py + dy, EXIT_COLOR)
-                if cell.get_hex() == "0xf":
+                            put_pixel(px + dx, py + dy, CURR_COLORS["exit"])
+                if cell.get_hex() == "F":
                     for dx in range(CELL_SIZE):
                         for dy in range(CELL_SIZE):
-                            put_pixel(px + dx, py + dy, FT_COLOR)
+                            put_pixel(px + dx, py + dy, CURR_COLORS["closed"])
                 else:
                     if cell.north:
                         for dx in range(CELL_SIZE):
                             for dy in range(WALL_THICKNESS):
-                                put_pixel(px + dx, py + dy, WALL_COLOR)
+                                put_pixel(px + dx, py + dy, CURR_COLORS["walls"])
                     if cell.south:
                         for dx in range(CELL_SIZE):
                             for dy in range(CELL_SIZE - WALL_THICKNESS,
                                             CELL_SIZE):
-                                put_pixel(px + dx, py + dy, WALL_COLOR)
+                                put_pixel(px + dx, py + dy, CURR_COLORS["walls"])
                     if cell.west:
                         for dx in range(WALL_THICKNESS):
                             for dy in range(CELL_SIZE):
-                                put_pixel(px + dx, py + dy, WALL_COLOR)
+                                put_pixel(px + dx, py + dy, CURR_COLORS["walls"])
                     if cell.east:
                         for dx in range(CELL_SIZE - WALL_THICKNESS, CELL_SIZE):
                             for dy in range(CELL_SIZE):
-                                put_pixel(px + dx, py + dy, WALL_COLOR)
+                                put_pixel(px + dx, py + dy, CURR_COLORS["walls"])
         mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, img_ptr, 0, 0)
-
+    
     def key_press(keycode: int, param) -> None:
         if keycode == 49:
             mlx.mlx_loop_exit(mlx_ptr)
         elif keycode == 50:
             maze.grid = maze.set_grid()
+            maze.seed = randint(0, 9999999)
+            maze.rndm = Random(maze.seed)
+            with open("seed_history.txt", "a") as file:
+                        file.write(f"{maze.seed}\n")
             maze.generate_maze()
         elif keycode == 51:
             nonlocal has_path
             has_path = not has_path
         elif keycode == 52:
             nonlocal i
-            nonlocal WALL_COLOR
+            nonlocal CURR_COLORS
             i += 1
-            if i == len(ALT_COLORS):
+            if i == len(COLORS):
                 i = 0
-            WALL_COLOR = ALT_COLORS[i]
+            CURR_COLORS = COLORS[i]
         elif keycode == 53:
             pass
 

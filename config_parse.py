@@ -10,7 +10,7 @@ def parse_line(line: str) -> tuple[str, str]:
 def config_parse(config: list[str]) -> dict[str, Any]:
     try:
         settings: dict[str, str] = dict(map(parse_line, config))
-        keys: list[str] = ["WIDTH", "HEIGHT", "ENTRY", "EXIT", "SEED",
+        keys: list[str] = ["WIDTH", "HEIGHT", "ENTRY", "EXIT",
                            "OUTPUT_FILE", "PERFECT"]
         for key in keys:
             if not settings.get(key):
@@ -23,8 +23,8 @@ def config_parse(config: list[str]) -> dict[str, Any]:
                                            split(",", maxsplit=2)))
         configuration["EXIT"] = tuple(map(lambda x: int(x), settings["EXIT"].
                                           split(",", maxsplit=2)))
-        if settings["SEED"] == "None":
-            configuration["SEED"] = eval(settings["SEED"].capitalize())
+        if not settings["SEED"] or settings["SEED"] == "None":
+            configuration["SEED"] = None
         else:
             configuration["SEED"] = int(settings["SEED"])
         configuration["OUTPUT_FILE"] = settings["OUTPUT_FILE"]

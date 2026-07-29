@@ -32,12 +32,15 @@ def maze_solver(maze: MazeGenerator) -> str:
         prev_pos, direction = came_from[pos]
         path = direction[0].capitalize() + path
         pos = prev_pos
-    file = open('output_maze.txt', 'w')
-    for row in maze.grid:
-        for cell in row:
-            file.write(cell.get_hex())
-        file.write("\n")
-    file.write(f"\n{maze.entry[0]},{maze.entry[1]}\n")
-    file.write(f"{maze.exit[0]},{maze.exit[1]}\n")
-    file.write(f"{path}\n")
+    try:
+        with open(maze.output_file, 'w') as file:
+            for row in maze.grid:
+                for cell in row:
+                    file.write(cell.get_hex())
+                file.write("\n")
+            file.write(f"\n{maze.entry[0]},{maze.entry[1]}\n")
+            file.write(f"{maze.exit[0]},{maze.exit[1]}\n")
+            file.write(f"{path}\n")
+    except Exception as e:
+        print(f"Error opening output file: {e}")
     return path
