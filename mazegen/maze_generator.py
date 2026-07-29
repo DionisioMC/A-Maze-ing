@@ -26,7 +26,7 @@ class MazeGenerator(ABC):
         self.grid = self.set_grid()
         self.rndm = Random(self.seed)
         if self.width <= 10 or self.height <= 10:
-            self.mask_42: list[tuple[int, int]]= []
+            self.mask_42: list[tuple[int, int]] = []
             print("Maze not big enough for 42 mask")
         else:
             self.mask_42 = self.get_42()
@@ -51,7 +51,7 @@ class MazeGenerator(ABC):
             cx = self.rndm.randint(0, self.width - 2)
             if ((cy, cx) not in self.mask_42 and
                 (cy, cx + 1) not in self.mask_42 and
-                self.grid[cy][cx].east == 1):
+                    self.grid[cy][cx].east == 1):
                 self.break_walls((cy, cx), (cy, cx + 1), 'east')
                 rem_quant -= 1
 
