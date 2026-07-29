@@ -1,7 +1,7 @@
 from sys import argv
 from typing import Any
 from config_parse import config_parse
-from mazegen import MazeGenerator
+from mazegen import MazeGenerator, RecursiveBacktracker
 from maze_solver import maze_solver
 from renderer import renderer
 
@@ -12,10 +12,10 @@ def main() -> None:
             settings: dict[str, Any] = config_parse(
                 list(filter(lambda line: line and not line.startswith("#"),
                      file.read().split("\n"))))
-            mazeGenerator = MazeGenerator(settings)
-            mazeGenerator.generate_maze()
-            path = maze_solver(mazeGenerator)
-            renderer(mazeGenerator, path)
+            maze: MazeGenerator = RecursiveBacktracker(settings)
+            maze.generate_maze()
+            path = maze_solver(maze)
+            renderer(maze, path)
     else:
         print("Usage: python3 a_maze_ing.py config.txt")
 

@@ -43,7 +43,7 @@ class MazeGenerator(ABC):
     @abstractmethod
     def generate_maze(self) -> None:
         pass
-    
+
     def generate_imperfect(self) -> None:
         rem_quant = self.height * self.width // 10
         while rem_quant:

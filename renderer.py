@@ -2,6 +2,7 @@ from mazegen import MazeGenerator
 from mlx import Mlx
 from maze_solver import maze_solver
 from random import randint, Random
+from typing import Any
 
 
 def renderer(maze: MazeGenerator, path: str):
@@ -11,7 +12,7 @@ def renderer(maze: MazeGenerator, path: str):
     i: int = 0
     CELL_SIZE = 20
     WALL_THICKNESS = 3
-    COLORS = [
+    COLORS: list[dict[str, Any]] = [
         {
             "name": "Classic",
             "walls": int("0xFF202020", 16),
@@ -166,7 +167,8 @@ def renderer(maze: MazeGenerator, path: str):
                     py, px = cell_origin(path_cell)
                     for dx in range(CELL_SIZE):
                         for dy in range(CELL_SIZE):
-                            put_pixel(px + dx, py + dy, CURR_COLORS["solution"])
+                            put_pixel(px + dx, py + dy,
+                                      CURR_COLORS["solution"])
 
         for row in maze.grid:
             for cell in row:
@@ -207,7 +209,7 @@ def renderer(maze: MazeGenerator, path: str):
                                 put_pixel(px + CELL_SIZE + dx, py + dy,
                                           CURR_COLORS["walls"])
         mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, img_ptr, 0, 0)
-    
+
     def key_press(keycode: int, param) -> None:
         if keycode == 49:
             mlx.mlx_loop_exit(mlx_ptr)
@@ -216,7 +218,7 @@ def renderer(maze: MazeGenerator, path: str):
             maze.seed = randint(0, 9999999)
             maze.rndm = Random(maze.seed)
             with open("seed_history.txt", "a") as file:
-                        file.write(f"{maze.seed}\n")
+                file.write(f"{maze.seed}\n")
             maze.generate_maze()
         elif keycode == 51:
             nonlocal has_path
