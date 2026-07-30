@@ -1,7 +1,7 @@
 from sys import argv
 from typing import Any
 from config_parse import config_parse
-from mazegen import MazeGenerator, RecursiveBacktracker
+from mazegen import MazeGenerator, RecursiveBacktracker, Kruskal, Prim
 from maze_solver import maze_solver
 from renderer import renderer
 

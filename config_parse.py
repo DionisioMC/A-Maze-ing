@@ -26,7 +26,7 @@ def config_parse(config: list[str]) -> dict[str, Any]:
         if not settings["SEED"] or settings["SEED"] == "None":
             configuration["SEED"] = None
         else:
-            configuration["SEED"] = int(settings["SEED"])
+            configuration["SEED"] = settings["SEED"]
         configuration["OUTPUT_FILE"] = settings["OUTPUT_FILE"]
         configuration["PERFECT"] = eval(settings["PERFECT"].capitalize())
         if configuration["WIDTH"] < 2 or configuration["HEIGHT"] < 2:
