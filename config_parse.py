@@ -30,11 +30,13 @@ def config_parse(config: list[str]) -> dict[str, Any]:
         else:
             configuration["SEED"] = settings["SEED"]
         if "ALGORITHM" not in settings.keys():
-            configuration["ALGORITHM"] = None
-        elif settings["ALGORITHM"] not in ["Prim", "RecursiveBacktracker", "Kruskal"]:
+            configuration["ALGORITHM"] = "RecursiveBacktracker"
+        elif settings["ALGORITHM"] not in ["Prim", "RecursiveBacktracker",
+                                           "Kruskal"]:
             raise ValueError("The specified Algorithm isn't valid")
+        else:
+            configuration["ALGORITHM"] = settings["ALGORITHM"]
 
-        
         configuration["OUTPUT_FILE"] = settings["OUTPUT_FILE"]
         configuration["PERFECT"] = eval(settings["PERFECT"].capitalize())
 
@@ -47,12 +49,12 @@ def config_parse(config: list[str]) -> dict[str, Any]:
         if ((configuration["ENTRY"][0] < 0 or
             configuration["ENTRY"][0] >= configuration["HEIGHT"]) or
             (configuration["ENTRY"][1] < 0 or
-            configuration["ENTRY"][1] >= configuration["WIDTH"])):
+                configuration["ENTRY"][1] >= configuration["WIDTH"])):
             raise ValueError("Entry point is outside of the maze")
         if ((configuration["EXIT"][0] < 0 or
             configuration["EXIT"][0] >= configuration["HEIGHT"]) or
             (configuration["EXIT"][1] < 0 or
-            configuration["EXIT"][1] >= configuration["WIDTH"])):
+                configuration["EXIT"][1] >= configuration["WIDTH"])):
             raise ValueError("Exit point is outside of the maze")
         if configuration["ENTRY"] == configuration["EXIT"]:
             raise ValueError("Entry and exit set to the same coordenates")

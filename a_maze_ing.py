@@ -8,11 +8,14 @@ from renderer import renderer
 
 def select_mazeGenerator(settings: dict[str, Any]) -> MazeGenerator:
     mazeGenerator: MazeGenerator
+    print(settings["ALGORITHM"])
     if (not settings["ALGORITHM"] or settings["ALGORITHM"] ==
             "RecursiveBacktracker"):
         mazeGenerator = RecursiveBacktracker(settings)
     elif settings["ALGORITHM"] == "Prim":
         mazeGenerator = Prim(settings)
+    elif settings["ALGORITHM"] == "Kruskal":
+        mazeGenerator = Kruskal(settings)
     return mazeGenerator
 
 
