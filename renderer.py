@@ -213,7 +213,12 @@ def renderer(maze: MazeGenerator, path: str) -> None:
 
     def key_press(keycode: int, param: Any) -> None:
         if keycode == 49:
-            mlx.mlx_loop_exit(mlx_ptr)
+            nonlocal i
+            nonlocal CURR_COLORS
+            i += 1
+            if i == len(COLORS):
+                i = 0
+            CURR_COLORS = COLORS[i]
         elif keycode == 50:
             maze.grid = maze.set_grid()
             maze.seed = randint(0, 9999999)
@@ -229,12 +234,7 @@ def renderer(maze: MazeGenerator, path: str) -> None:
             nonlocal has_path
             has_path = not has_path
         elif keycode == 52:
-            nonlocal i
-            nonlocal CURR_COLORS
-            i += 1
-            if i == len(COLORS):
-                i = 0
-            CURR_COLORS = COLORS[i]
+            mlx.mlx_loop_exit(mlx_ptr)
         elif keycode == 53:
             pass
 
