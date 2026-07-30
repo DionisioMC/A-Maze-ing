@@ -119,14 +119,29 @@ def renderer(maze: MazeGenerator, path: str) -> None:
     WIDTH = maze.width * CELL_SIZE + (maze.width + 1) * WALL_THICKNESS
     HEIGHT = maze.height * CELL_SIZE + (maze.height + 1) * WALL_THICKNESS
     PADDING = 40
-    win_ptr = mlx.mlx_new_window(mlx_ptr,
-                                 (WIDTH + (PADDING * 2)),
-                                 (HEIGHT + (PADDING * 2)),
-                                 "A-Maze-ing")
-    img_ptr = mlx.mlx_new_image(mlx_ptr,
-                                (WIDTH + (PADDING * 2)),
-                                (HEIGHT + (PADDING * 2)))
-    data, bpp, size_line, endian = mlx.mlx_get_data_addr(img_ptr)
+    path_cells: list[tuple[int, int]] = []
+    animation_frame: int = 0
+    FRAMES_PER_STEP: int = 1
+    table_path = "assets/table_horizontal.png"
+    table, table_w, table_h = mlx.mlx_png_file_to_image(mlx_ptr,
+                                                        table_path)
+    if table_w <= (WIDTH + (PADDING * 2)):
+        WIN_WIDTH = WIDTH + PADDING * 2
+        WIN_HEIGHT = HEIGHT + PADDING * 2
+        table_x = (WIN_WIDTH - table_w) // 2
+        table_y = WIN_HEIGHT - table_h
+    else:
+        table_path = "assets/table_vertical.png"
+        table, table_w, table_h = mlx.mlx_png_file_to_image(mlx_ptr,
+                                                            table_path)
+        WIN_WIDTH = WIDTH + PADDING * 2 + table_w + PADDING
+        WIN_HEIGHT = max(HEIGHT + PADDING * 2, table_h + PADDING * 2)
+        table_x = WIDTH + PADDING * 2
+        table_y = (WIN_HEIGHT - table_h) // 2
+        table_path = "assets/table_vertical"
+    win_ptr = mlx.mlx_new_window(mlx_ptr, WIN_WIDTH, WIN_HEIGHT, "A-Maze-ing")
+    img_ptr = mlx.mlx_new_image(mlx_ptr, WIN_WIDTH, WIN_HEIGHT)
+    data, bpp, size_line, _ = mlx.mlx_get_data_addr(img_ptr)
     bytes_per_pixel = bpp // 8
 
     def put_pixel(x: int, y: int, color: int) -> None:
@@ -142,7 +157,28 @@ def renderer(maze: MazeGenerator, path: str) -> None:
               + PADDING)
         return (py, px)
 
+    def animate_path() -> None:
+        solved_path = maze_solver(maze)
+        path_cell = maze.grid[maze.entry[0]][maze.entry[1]]
+        for direction in solved_path:
+            next_y = path_cell.pos[0]
+            next_x = path_cell.pos[1]
+            if direction == "N":
+                next_y -= 1
+            elif direction == "E":
+                next_x += 1
+            elif direction == "S":
+                next_y += 1
+            elif direction == "W":
+                next_x -= 1
+            path_cell = maze.grid[next_y][next_x]
+            if path_cell.pos != maze.exit:
+                path_cells.append(path_cell.pos)
+
+    animate_path()
+
     def render(param: Any) -> None:
+        nonlocal animation_frame
         for row in maze.grid:
             for cell in row:
                 py, px = cell_origin(cell)
@@ -150,26 +186,14 @@ def renderer(maze: MazeGenerator, path: str) -> None:
                     for dy in range(CELL_SIZE + (WALL_THICKNESS * 2)):
                         put_pixel(px + dx, py + dy, CURR_COLORS["bg"])
         if has_path:
-            path = maze_solver(maze)
-            path_cell = maze.grid[maze.entry[0]][maze.entry[1]]
-            for direction in path:
-                next_y: int = path_cell.pos[0]
-                next_x: int = path_cell.pos[1]
-                if direction == "N":
-                    next_y -= 1
-                elif direction == "E":
-                    next_x += 1
-                elif direction == "S":
-                    next_y += 1
-                elif direction == "W":
-                    next_x -= 1
-                path_cell = maze.grid[next_y][next_x]
-                if path_cell.pos != maze.exit:
-                    py, px = cell_origin(path_cell)
-                    for dx in range(CELL_SIZE):
-                        for dy in range(CELL_SIZE):
-                            put_pixel(px + dx, py + dy,
-                                      CURR_COLORS["solution"])
+            cells_to_draw = animation_frame // FRAMES_PER_STEP
+            for pos in path_cells[:cells_to_draw]:
+                py, px = cell_origin(maze.grid[pos[0]][pos[1]])
+                for dx in range(CELL_SIZE):
+                    for dy in range(CELL_SIZE):
+                        put_pixel(px + dx, py + dy, CURR_COLORS["solution"])
+            if cells_to_draw < len(path_cells):
+                animation_frame += 1
 
         for row in maze.grid:
             for cell in row:
@@ -220,6 +244,9 @@ def renderer(maze: MazeGenerator, path: str) -> None:
                 i = 0
             CURR_COLORS = COLORS[i]
         elif keycode == 50:
+            nonlocal animation_frame, path_cells
+            animation_frame = 0
+            path_cells = []
             maze.grid = maze.set_grid()
             maze.seed = randint(0, 9999999)
             maze.rndm = Random(maze.seed)
@@ -230,6 +257,7 @@ def renderer(maze: MazeGenerator, path: str) -> None:
                 print(f"Error writing to file seed_history.txt: {e}")
                 exit(1)
             maze.generate_maze()
+            animate_path()
         elif keycode == 51:
             nonlocal has_path
             has_path = not has_path
@@ -238,11 +266,7 @@ def renderer(maze: MazeGenerator, path: str) -> None:
         elif keycode == 53:
             pass
 
-    table, table_w, table_h = mlx.mlx_png_file_to_image(mlx_ptr,
-                                                        "assets/image.png")
-    mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, table,
-                                (WIDTH + PADDING * 2 - table_w) // 2,
-                                HEIGHT + (PADDING * 2) - table_h)
+    mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, table, table_x, table_y)
     mlx.mlx_loop_hook(mlx_ptr, render, None)
     mlx.mlx_key_hook(win_ptr, key_press, None)
     mlx.mlx_loop(mlx_ptr)
