@@ -7,10 +7,8 @@ from renderer import renderer
 
 
 def select_mazeGenerator(settings: dict[str, Any]) -> MazeGenerator:
-    mazeGenerator: MazeGenerator
     print(settings["ALGORITHM"])
-    if (not settings["ALGORITHM"] or settings["ALGORITHM"] ==
-            "RecursiveBacktracker"):
+    if settings["ALGORITHM"] == "RecursiveBacktracker":
         mazeGenerator = RecursiveBacktracker(settings)
     elif settings["ALGORITHM"] == "Prim":
         mazeGenerator = Prim(settings)
@@ -31,7 +29,7 @@ def main() -> None:
                 path = maze_solver(maze)
                 renderer(maze, path)
         except Exception as e:
-            print(f"Error opening file {argv[1]}: {e}")
+            print(f"Error: {e}")
             exit(1)
     else:
         print("Usage: python3 a_maze_ing.py config.txt")
