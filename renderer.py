@@ -238,10 +238,11 @@ def renderer(maze: MazeGenerator, path: str) -> None:
         elif keycode == 53:
             pass
 
-    table, _, table_height = mlx.mlx_png_file_to_image(mlx_ptr,
-                                                       "assets/image.png")
-    mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, table, 0,
-                                HEIGHT + (PADDING * 2) - table_height)
+    table, table_w, table_h = mlx.mlx_png_file_to_image(mlx_ptr,
+                                                        "assets/image.png")
+    mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, table,
+                                (WIDTH + PADDING * 2 - table_w) // 2,
+                                HEIGHT + (PADDING * 2) - table_h)
     mlx.mlx_loop_hook(mlx_ptr, render, None)
     mlx.mlx_key_hook(win_ptr, key_press, None)
     mlx.mlx_loop(mlx_ptr)
