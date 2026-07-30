@@ -42,5 +42,5 @@ def maze_solver(maze: MazeGenerator) -> str:
             file.write(f"{maze.exit[0]},{maze.exit[1]}\n")
             file.write(f"{path}\n")
     except Exception as e:
-        print(f"Error opening output file: {e}")
+        raise Exception(f"Error opening output file: {e}")
     return path

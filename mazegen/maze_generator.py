@@ -23,8 +23,7 @@ class MazeGenerator(ABC):
             with open("seed_history.txt", "a") as file:
                 file.write(f"{self.seed}\n")
         except Exception as e:
-            print(f"Error writing to file seed_history.txt: {e}")
-            exit(1)
+            raise Exception(f"Error writing to file seed_history.txt: {e}")
         self.output_file = settings["OUTPUT_FILE"]
         self.perfect = settings["PERFECT"]
         self.grid = self.set_grid()
@@ -42,7 +41,7 @@ class MazeGenerator(ABC):
                 raise MazeException("Exit is in the 42 mask!\n"
                                     f"Forbidden cells: {self.mask_42}")
         except Exception as e:
-            print(f"Maze generation error: {e}")
+            raise Exception(f"Maze generation error: {e}")
 
     @abstractmethod
     def generate_maze(self) -> None:

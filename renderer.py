@@ -254,8 +254,7 @@ def renderer(maze: MazeGenerator, path: str) -> None:
                 with open("seed_history.txt", "a") as file:
                     file.write(f"{maze.seed}\n")
             except Exception as e:
-                print(f"Error writing to file seed_history.txt: {e}")
-                exit(1)
+                raise Exception(f"Error writing to file seed_history.txt: {e}")
             maze.generate_maze()
             animate_path()
         elif keycode == 51:

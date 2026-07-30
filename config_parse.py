@@ -37,10 +37,10 @@ def config_parse(config: list[str]) -> dict[str, Any]:
             raise ValueError("The specified Algorithm isn't valid")
         else:
             configuration["ALGORITHM"] = settings["ALGORITHM"]
-
+        with open(settings["OUTPUT_FILE"], "w"):
+            pass
         configuration["OUTPUT_FILE"] = settings["OUTPUT_FILE"]
         configuration["PERFECT"] = eval(settings["PERFECT"].capitalize())
-
         if configuration["WIDTH"] < 2 or configuration["HEIGHT"] < 2:
             raise ValueError("The maze has a minimum configuration of 2x2")
         if len(configuration["ENTRY"]) > 2:
@@ -59,7 +59,6 @@ def config_parse(config: list[str]) -> dict[str, Any]:
             raise ValueError("Exit point is outside of the maze")
         if configuration["ENTRY"] == configuration["EXIT"]:
             raise ValueError("Entry and exit set to the same coordenates")
-    except ValueError as e:
-        print(f"configuration file error: {e}")
-        exit(1)
+    except Exception as e:
+        raise Exception(f"Configuration file error: {e}")
     return configuration

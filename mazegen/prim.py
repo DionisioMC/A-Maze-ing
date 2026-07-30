@@ -26,7 +26,7 @@ class Prim(MazeGenerator):
             if self.perfect is False:
                 self.generate_imperfect()
         except Exception as e:
-            print(f"Maze generation error: {e}")
+            raise Exception(f"Maze generation error: {e}")
 
     def append_neighbours(self, cell: tuple[int, int],
                           visited: list[tuple[int, int]],
