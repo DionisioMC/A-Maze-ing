@@ -29,6 +29,7 @@ def config_parse(config: list[str]) -> dict[str, Any]:
             configuration["SEED"] = int(settings["SEED"])
         else:
             configuration["SEED"] = settings["SEED"]
+
         if "ALGORITHM" not in settings.keys():
             configuration["ALGORITHM"] = "RecursiveBacktracker"
         elif settings["ALGORITHM"] not in ["Prim", "RecursiveBacktracker",
