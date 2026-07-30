@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 
 
 class MazeException(Exception):
-    def __init__(self, *args):
+    def __init__(self, *args: Any) -> None:
         super().__init__(*args)
 
 
@@ -19,8 +19,12 @@ class MazeGenerator(ABC):
             self.seed = randint(0, 9999999)
         else:
             self.seed = settings["SEED"]
-        with open("seed_history.txt", "a") as file:
-            file.write(f"{self.seed}\n")
+        try:
+            with open("seed_history.txt", "a") as file:
+                file.write(f"{self.seed}\n")
+        except Exception as e:
+            print(f"Error writing to file seed_history.txt: {e}")
+            exit(1)
         self.output_file = settings["OUTPUT_FILE"]
         self.perfect = settings["PERFECT"]
         self.grid = self.set_grid()
@@ -72,7 +76,7 @@ class MazeGenerator(ABC):
         return mask_42
 
     def break_walls(self, curr: tuple[int, int], next: tuple[int, int],
-                    direction: str):
+                    direction: str) -> None:
         cy, cx = curr
         ny, nx = next
         if direction == 'north':

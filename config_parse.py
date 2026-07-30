@@ -23,14 +23,21 @@ def config_parse(config: list[str]) -> dict[str, Any]:
                                            settings["ENTRY"].split(",")))
         configuration["EXIT"] = tuple(map(lambda x: int(x),
                                           settings["EXIT"].split(",")))
-        if not settings["SEED"] or settings["SEED"] == "None":
+        if "SEED" not in settings.keys() or settings["SEED"] == "None":
             configuration["SEED"] = None
         elif settings["SEED"].isdigit():
             configuration["SEED"] = int(settings["SEED"])
         else:
             configuration["SEED"] = settings["SEED"]
+        if "ALGORITHM" not in settings.keys():
+            configuration["ALGORITHM"] = None
+        elif settings["ALGORITHM"] not in ["Prim", "RecursiveBacktracker", "Kruskal"]:
+            raise ValueError("The specified Algorithm isn't valid")
+
+        
         configuration["OUTPUT_FILE"] = settings["OUTPUT_FILE"]
         configuration["PERFECT"] = eval(settings["PERFECT"].capitalize())
+
         if configuration["WIDTH"] < 2 or configuration["HEIGHT"] < 2:
             raise ValueError("The maze has a minimum configuration of 2x2")
         if len(configuration["ENTRY"]) > 2:
