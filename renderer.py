@@ -1,12 +1,13 @@
-from mazegen import MazeGenerator
+from mazegen import MazeGenerator, Cell
 from mlx import Mlx
 from maze_solver import maze_solver
 from random import randint, Random
 from typing import Any
+from sys import exit
 
 
-def renderer(maze: MazeGenerator, path: str):
-    mlx = Mlx()
+def renderer(maze: MazeGenerator, path: str) -> None:
+    mlx: Mlx = Mlx()
     mlx_ptr = mlx.mlx_init()
     has_path: bool = True
     i: int = 0
@@ -134,14 +135,14 @@ def renderer(maze: MazeGenerator, path: str):
         data[offset:pixel_end] = color.to_bytes(bytes_per_pixel,
                                                 byteorder="little")
 
-    def cell_origin(cell) -> tuple[int, int]:
+    def cell_origin(cell: Cell) -> tuple[int, int]:
         py = (cell.pos[0] * (CELL_SIZE + WALL_THICKNESS) + WALL_THICKNESS
               + PADDING)
         px = (cell.pos[1] * (CELL_SIZE + WALL_THICKNESS) + WALL_THICKNESS
               + PADDING)
         return (py, px)
 
-    def render(param) -> None:
+    def render(param: Any) -> None:
         for row in maze.grid:
             for cell in row:
                 py, px = cell_origin(cell)
@@ -210,15 +211,19 @@ def renderer(maze: MazeGenerator, path: str):
                                           CURR_COLORS["walls"])
         mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, img_ptr, 0, 0)
 
-    def key_press(keycode: int, param) -> None:
+    def key_press(keycode: int, param: Any) -> None:
         if keycode == 49:
             mlx.mlx_loop_exit(mlx_ptr)
         elif keycode == 50:
             maze.grid = maze.set_grid()
             maze.seed = randint(0, 9999999)
             maze.rndm = Random(maze.seed)
-            with open("seed_history.txt", "a") as file:
-                file.write(f"{maze.seed}\n")
+            try:
+                with open("seed_history.txt", "a") as file:
+                    file.write(f"{maze.seed}\n")
+            except Exception as e:
+                print(f"Error writing to file seed_history.txt: {e}")
+                exit(1)
             maze.generate_maze()
         elif keycode == 51:
             nonlocal has_path
@@ -233,6 +238,10 @@ def renderer(maze: MazeGenerator, path: str):
         elif keycode == 53:
             pass
 
+    table, _, table_height = mlx.mlx_png_file_to_image(mlx_ptr,
+                                                       "assets/image.png")
+    mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, table, 0,
+                                HEIGHT + (PADDING * 2) - table_height)
     mlx.mlx_loop_hook(mlx_ptr, render, None)
     mlx.mlx_key_hook(win_ptr, key_press, None)
     mlx.mlx_loop(mlx_ptr)
