@@ -2,7 +2,14 @@ from .maze_generator import MazeGenerator
 
 
 class RecursiveBacktracker(MazeGenerator):
+    """Maze generator using the recursive backtracking (depth-first
+    search) algorithm."""
+
     def generate_maze(self) -> None:
+        """Carve the maze by repeatedly moving to a random unvisited
+        neighbour and backtracking via a stack when stuck, until every
+        reachable cell has been visited. Optionally adds loops
+        afterwards if the maze should be imperfect."""
         try:
             visited = self.mask_42.copy()
             maze_stack: list[tuple[int, int]] = []

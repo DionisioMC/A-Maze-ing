@@ -1,7 +1,11 @@
-from mazegen import MazeGenerator
+from .maze_generator import MazeGenerator
 
 
 def maze_solver(maze: MazeGenerator) -> str:
+    """Find the shortest path from the maze's entry to its exit using
+    breadth-first search, write the maze (as hex-encoded cells),
+    entry/exit coordinates and the solution path to the output file,
+    and return the path as a string of direction letters (N/E/S/W)."""
     entry = maze.entry
     exit = maze.exit
     queue: list[tuple[int, int]] = []

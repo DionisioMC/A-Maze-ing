@@ -1,12 +1,16 @@
-from mazegen import MazeGenerator, Cell
-from mlx import Mlx
-from maze_solver import maze_solver
+from .maze_generator import MazeGenerator
+from .cell import Cell
+from .mlx import Mlx
+from .maze_solver import maze_solver
 from random import randint, Random
 from typing import Any
-from sys import exit
 
 
 def renderer(maze: MazeGenerator, path: str) -> None:
+    """Open an MLX window and interactively display the generated
+    maze: draw cells, walls, entry/exit and an animated solution
+    path, and handle key presses to cycle color themes, regenerate
+    the maze with a new seed, toggle the solution path, or quit."""
     mlx: Mlx = Mlx()
     mlx_ptr = mlx.mlx_init()
     has_path: bool = True
@@ -122,7 +126,7 @@ def renderer(maze: MazeGenerator, path: str) -> None:
     path_cells: list[tuple[int, int]] = []
     animation_frame: int = 0
     FRAMES_PER_STEP: int = 1
-    table_path = "assets/table_horizontal.png"
+    table_path = "mazegen/assets/table_horizontal.png"
     table, table_w, table_h = mlx.mlx_png_file_to_image(mlx_ptr,
                                                         table_path)
     if table_w <= (WIDTH + (PADDING * 2)):
@@ -131,26 +135,31 @@ def renderer(maze: MazeGenerator, path: str) -> None:
         table_x = (WIN_WIDTH - table_w) // 2
         table_y = WIN_HEIGHT - table_h
     else:
-        table_path = "assets/table_vertical.png"
+        table_path = "mazegen/assets/table_vertical.png"
         table, table_w, table_h = mlx.mlx_png_file_to_image(mlx_ptr,
                                                             table_path)
         WIN_WIDTH = WIDTH + PADDING * 2 + table_w + PADDING
         WIN_HEIGHT = max(HEIGHT + PADDING * 2, table_h + PADDING * 2)
         table_x = WIDTH + PADDING * 2
         table_y = (WIN_HEIGHT - table_h) // 2
-        table_path = "assets/table_vertical"
+        table_path = "mazegen/assets/table_vertical"
     win_ptr = mlx.mlx_new_window(mlx_ptr, WIN_WIDTH, WIN_HEIGHT, "A-Maze-ing")
     img_ptr = mlx.mlx_new_image(mlx_ptr, WIN_WIDTH, WIN_HEIGHT)
     data, bpp, size_line, _ = mlx.mlx_get_data_addr(img_ptr)
     bytes_per_pixel = bpp // 8
 
     def put_pixel(x: int, y: int, color: int) -> None:
+        """Write a single ARGB `color` value into the image buffer at
+        pixel coordinates (x, y)."""
         offset = y * size_line + x * bytes_per_pixel
         pixel_end = offset + bytes_per_pixel
         data[offset:pixel_end] = color.to_bytes(bytes_per_pixel,
                                                 byteorder="little")
 
     def cell_origin(cell: Cell) -> tuple[int, int]:
+        """Return the (y, x) pixel coordinates of the top-left corner
+        of `cell`'s drawable area on screen, including padding and
+        wall-thickness offsets."""
         py = (cell.pos[0] * (CELL_SIZE + WALL_THICKNESS) + WALL_THICKNESS
               + PADDING)
         px = (cell.pos[1] * (CELL_SIZE + WALL_THICKNESS) + WALL_THICKNESS
@@ -158,6 +167,9 @@ def renderer(maze: MazeGenerator, path: str) -> None:
         return (py, px)
 
     def animate_path() -> None:
+        """Solve the maze and populate `path_cells` with the sequence
+        of cell positions (excluding the exit) forming the solution
+        path, to be revealed progressively during rendering."""
         solved_path = maze_solver(maze)
         path_cell = maze.grid[maze.entry[0]][maze.entry[1]]
         for direction in solved_path:
@@ -178,6 +190,10 @@ def renderer(maze: MazeGenerator, path: str) -> None:
     animate_path()
 
     def render(param: Any) -> None:
+        """MLX loop-hook callback: redraw the whole frame each tick —
+        cell backgrounds, the progressively-animated solution path,
+        entry/exit highlights, closed ('42' mask) cells and walls —
+        then blit the image to the window."""
         nonlocal animation_frame
         for row in maze.grid:
             for cell in row:
@@ -236,6 +252,10 @@ def renderer(maze: MazeGenerator, path: str) -> None:
         mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, img_ptr, 0, 0)
 
     def key_press(keycode: int, param: Any) -> None:
+        """MLX key-hook callback handling user input: cycle to the
+        next color theme (1), regenerate the maze with a fresh random
+        seed (2), toggle the solution-path display (3), or exit the
+        render loop (4)."""
         if keycode == 49:
             nonlocal i
             nonlocal CURR_COLORS
@@ -262,8 +282,6 @@ def renderer(maze: MazeGenerator, path: str) -> None:
             has_path = not has_path
         elif keycode == 52:
             mlx.mlx_loop_exit(mlx_ptr)
-        elif keycode == 53:
-            pass
 
     mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, table, table_x, table_y)
     mlx.mlx_loop_hook(mlx_ptr, render, None)

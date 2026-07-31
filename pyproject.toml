@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mazegen"
+version = "1.0.0"
+description = "Reusable maze generation and solving library (A-Maze-ing, 42 curriculum)"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "dcoelho" },
+    { name = "hede-car" }
+]
+
+[tool.setuptools]
+packages = ["mazegen"]
