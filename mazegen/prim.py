@@ -2,7 +2,15 @@ from .maze_generator import MazeGenerator
 
 
 class Prim(MazeGenerator):
+    """Maze generator using a randomized version of Prim's algorithm,
+    growing the maze outward from the entry cell via a frontier set."""
+
     def generate_maze(self) -> None:
+        """Carve the maze by repeatedly picking a random frontier
+        cell, connecting it to one of its already-visited neighbours,
+        and expanding the frontier with its own unvisited neighbours,
+        until the frontier is empty. Optionally adds loops afterwards
+        if the maze should be imperfect."""
         try:
             visited = self.mask_42.copy()
             frontier: list[tuple[int, int]] = []
@@ -31,6 +39,9 @@ class Prim(MazeGenerator):
     def append_neighbours(self, cell: tuple[int, int],
                           visited: list[tuple[int, int]],
                           frontier: list[tuple[int, int]]) -> None:
+        """Add the in-bounds neighbours of `cell` to `frontier` if
+        they are not already visited or already part of the
+        frontier."""
         moves = [(1, 0), (-1, 0), (0, 1), (0, -1)]
         cy, cx = cell
         for my, mx in moves:

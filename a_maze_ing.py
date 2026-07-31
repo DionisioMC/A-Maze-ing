@@ -1,23 +1,12 @@
 from sys import argv, exit
 from typing import Any
-from config_parse import config_parse
-from mazegen import MazeGenerator, RecursiveBacktracker, Kruskal, Prim
-from maze_solver import maze_solver
-from renderer import renderer
-
-
-def select_mazeGenerator(settings: dict[str, Any]) -> MazeGenerator:
-    print(settings["ALGORITHM"])
-    if settings["ALGORITHM"] == "RecursiveBacktracker":
-        mazeGenerator = RecursiveBacktracker(settings)
-    elif settings["ALGORITHM"] == "Prim":
-        mazeGenerator = Prim(settings)
-    elif settings["ALGORITHM"] == "Kruskal":
-        mazeGenerator = Kruskal(settings)
-    return mazeGenerator
+from mazegen import (MazeGenerator, config_parse, maze_solver,
+                     select_mazeGenerator, renderer)
 
 
 def main() -> None:
+    """Entry point: read the config file passed as a command-line
+    argument, generate the maze, solve it and render the result."""
     if len(argv) == 2:
         try:
             with open(argv[1]) as file:

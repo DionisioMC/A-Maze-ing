@@ -1,13 +1,23 @@
 from typing import Any
-from sys import exit
+from .maze_generator import MazeGenerator
+from .recursive_backtracker import RecursiveBacktracker
+from .kruskal import Kruskal
+from .prim import Prim
 
 
 def parse_line(line: str) -> tuple[str, str]:
+    """Split a "KEY = value" config line into a trimmed
+    (key, value) pair."""
     setting, value = line.split("=")
     return setting.strip(), value.strip()
 
 
 def config_parse(config: list[str]) -> dict[str, Any]:
+    """Parse a list of "KEY = value" config lines into a validated
+    settings dict (width, height, entry/exit points, seed, algorithm,
+    output file, perfect flag), raising an exception if any required
+    key is missing or a value is invalid (e.g. entry/exit out of
+    bounds, unknown algorithm, maze too small)."""
     try:
         settings: dict[str, str] = dict(map(parse_line, config))
         keys: list[str] = ["WIDTH", "HEIGHT", "ENTRY", "EXIT",
@@ -62,3 +72,16 @@ def config_parse(config: list[str]) -> dict[str, Any]:
     except Exception as e:
         raise Exception(f"Configuration file error: {e}")
     return configuration
+
+
+def select_mazeGenerator(settings: dict[str, Any]) -> MazeGenerator:
+    """Instantiate the maze generator class specified by the
+    "ALGORITHM" setting (RecursiveBacktracker, Prim or Kruskal)."""
+    mazeGenerator: MazeGenerator
+    if settings["ALGORITHM"] == "RecursiveBacktracker":
+        mazeGenerator = RecursiveBacktracker(settings)
+    elif settings["ALGORITHM"] == "Prim":
+        mazeGenerator = Prim(settings)
+    elif settings["ALGORITHM"] == "Kruskal":
+        mazeGenerator = Kruskal(settings)
+    return mazeGenerator

@@ -5,12 +5,22 @@ from abc import ABC, abstractmethod
 
 
 class MazeException(Exception):
+    """Custom exception used to signal maze generation/configuration
+    errors (e.g. entry or exit placed inside the forbidden '42' mask)."""
+
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
 
 
 class MazeGenerator(ABC):
+    """Abstract base class for maze generation algorithms. Sets up the
+    grid, seed, entry/exit points and the forbidden '42' mask, and
+    provides shared helpers used by concrete generator subclasses."""
+
     def __init__(self, settings: dict[str, Any]):
+        """Initialize the generator from a parsed settings dict: build
+        the grid, resolve/record the RNG seed, and compute the '42'
+        mask (raising MazeException if entry/exit fall inside it)."""
         self.width = settings["WIDTH"]
         self.height = settings["HEIGHT"]
         self.entry = settings["ENTRY"]
@@ -45,9 +55,14 @@ class MazeGenerator(ABC):
 
     @abstractmethod
     def generate_maze(self) -> None:
+        """Carve the maze passages into `self.grid`. Must be
+        implemented by each concrete generation algorithm."""
         pass
 
     def generate_imperfect(self) -> None:
+        """Turn a perfect maze into an imperfect one by randomly
+        breaking extra east-facing walls (loops), skipping cells in
+        the '42' mask, until roughly 10% of cells have been altered."""
         rem_quant = self.height * self.width // 10
         while rem_quant:
             cy = self.rndm.randint(0, self.height - 1)
@@ -59,11 +74,15 @@ class MazeGenerator(ABC):
                 rem_quant -= 1
 
     def set_grid(self) -> list[list[Cell]]:
+        """Build and return a `height` x `width` grid of Cells with
+        all four walls closed."""
         grid = [[Cell(1, 1, 1, 1, (y, x)) for x in range(self.width)]
                 for y in range(self.height)]
         return grid
 
     def get_42(self) -> list[tuple[int, int]]:
+        """Compute and return the list of grid coordinates forming the
+        '42'-shaped mask of forbidden cells, centered on the grid."""
         center = (self.height // 2, self.width // 2)
         mask_coords = [
             (-2, -3), (-1, -3), (0, -3), (0, -2), (0, -1), (1, -1), (2, -1),
@@ -76,6 +95,9 @@ class MazeGenerator(ABC):
 
     def break_walls(self, curr: tuple[int, int], next: tuple[int, int],
                     direction: str) -> None:
+        """Open the wall between two adjacent cells `curr` and `next`
+        in the given `direction`, clearing the matching wall on both
+        cells so they become connected."""
         cy, cx = curr
         ny, nx = next
         if direction == 'north':
