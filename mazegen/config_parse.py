@@ -39,7 +39,6 @@ def config_parse(config: list[str]) -> dict[str, Any]:
             configuration["SEED"] = int(settings["SEED"])
         else:
             configuration["SEED"] = settings["SEED"]
-
         if "ALGORITHM" not in settings.keys():
             configuration["ALGORITHM"] = "RecursiveBacktracker"
         elif settings["ALGORITHM"] not in ["Prim", "RecursiveBacktracker",
@@ -50,7 +49,12 @@ def config_parse(config: list[str]) -> dict[str, Any]:
         with open(settings["OUTPUT_FILE"], "w"):
             pass
         configuration["OUTPUT_FILE"] = settings["OUTPUT_FILE"]
-        configuration["PERFECT"] = eval(settings["PERFECT"].capitalize())
+        if settings["PERFECT"].capitalize() == "True":
+            configuration["PERFECT"] = True
+        elif settings["PERFECT"].capitalize() == "False":
+            configuration["PERFECT"] = False
+        else:
+            raise ValueError("Perfect value should be True or False")
         if configuration["WIDTH"] < 2 or configuration["HEIGHT"] < 2:
             raise ValueError("The maze has a minimum configuration of 2x2")
         if len(configuration["ENTRY"]) > 2:
